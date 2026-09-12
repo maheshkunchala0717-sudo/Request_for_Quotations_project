@@ -30,10 +30,12 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = os.environ.get(
-    "ALLOWED_HOSTS",
-    "127.0.0.1,localhost,testserver"
-).split(",")
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "testserver",
+    "rfq-marketplace-ejob.onrender.com",
+]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
