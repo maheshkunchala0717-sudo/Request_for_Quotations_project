@@ -43,7 +43,7 @@ Django REST Framework
 ```
 
 Project Structure
-
+```text
 rfq_marketplace/
 ├── accounts/
 ├── frontend/
@@ -85,3 +85,4 @@ Mahesh Kunchala
 
 GitHub:
 https://github.com/maheshkunchala0717-sudo
+```
