@@ -39,7 +39,8 @@ Django REST Framework
             |
             v
      Database
-   SQLite / PostgreSQL```
+   SQLite / PostgreSQL
+```
 
 Project Structure
 
