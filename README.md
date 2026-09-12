@@ -41,12 +41,16 @@ Django REST Framework
      Database
    SQLite / PostgreSQL
 
+Project Structure
+
 rfq_marketplace/
 ├── accounts/
 ├── frontend/
 ├── market/
 ├── manage.py
 └── requirements.txt
+
+Local Setup
 
 git clone https://github.com/maheshkunchala0717-sudo/Request_for_Quotations_project.git
 cd Request_for_Quotations_project/rfq_marketplace/market
@@ -57,6 +61,8 @@ python manage.py migrate
 python manage.py runserver
 
 Open: http://127.0.0.1:8000/
+
+API Endpoints
 
 POST /register/
 POST /login/
@@ -78,8 +84,3 @@ Mahesh Kunchala
 
 GitHub:
 https://github.com/maheshkunchala0717-sudo
-
-
-**This is the version I recommend for your submission.** It covers the assignment requirements without making the README unnecessarily long.
-
-Paste it into `README.md`, save it, and then tell me **“saved”**.
