@@ -1,145 +1,85 @@
 # B2B Request for Quotation (RFQ) Marketplace
 
-A full-stack B2B Request for Quotation (RFQ) Marketplace that allows buyers to create and manage requests for quotations and suppliers to submit quotations for those requests.
-
-The application provides role-based access for Buyers and Suppliers, REST APIs using Django REST Framework, authentication, RFQ and quotation management, and a responsive frontend built with HTML, CSS, and JavaScript.
+A full-stack B2B RFQ Marketplace where Buyers can create and manage RFQs and Suppliers can submit quotations.
 
 ## Live Application
 
-**Live URL:**  
 https://rfq-marketplace-ejob.onrender.com
 
 ## GitHub Repository
 
-**Repository:**  
 https://github.com/maheshkunchala0717-sudo/Request_for_Quotations_project
-
----
 
 ## Features
 
-### Authentication
-
-- User registration
-- User login
-- Token/JWT-based authentication
-- Buyer and Supplier roles
-- Role-based access control
-
-### Buyer Features
-
-- Create RFQs
-- View RFQs
-- View individual RFQ details
-- Edit RFQs
-- Delete RFQs
-- View supplier quotations
-- Select a quotation
-
-### Supplier Features
-
-- View available RFQs
-- View RFQ details
-- Submit quotations
-- View submitted quotations
-- Edit quotations
-- Delete quotations
-
-### RFQ Management
-
-Each RFQ can contain:
-
-- Product/Service
-- Description
-- Quantity
-- Delivery location
-- Deadline
-- Buyer information
-
-### Quotation Management
-
-Each quotation can contain:
-
-- Price
-- Delivery time
-- Additional notes
-- Supplier information
-- Associated RFQ
-
-### Other Features
-
-- Django Admin interface
-- RESTful API endpoints
-- PostgreSQL database in production
-- SQLite database for local development
-- Static file handling with WhiteNoise
-- CORS configuration
+- Buyer and Supplier registration/login
+- Role-based authentication and permissions
+- Create, view, update and delete RFQs
+- Create, view, update and delete quotations
+- Select supplier quotations
+- Django Admin
+- REST APIs
 - Responsive frontend
-- CRUD operations for RFQs and quotations
-
----
 
 ## Technology Stack
 
-### Backend
+- **Backend:** Python, Django, Django REST Framework
+- **Frontend:** HTML, CSS, JavaScript
+- **Database:** SQLite (local), PostgreSQL (production)
+- **Deployment:** Render
+- **Authentication:** Token Authentication / JWT
 
-- Python
-- Django
-- Django REST Framework
-- Django REST Framework Token Authentication
-- Simple JWT
-- Django Filters
-
-### Frontend
-
-- HTML5
-- CSS3
-- JavaScript
-
-### Database
-
-- PostgreSQL - Production
-- SQLite - Local development
-
-### Deployment
-
-- Render Web Service
-- Render PostgreSQL
-
-### Development Tools
-
-- Git
-- GitHub
-- VS Code
-
----
-
-## Project Architecture
-
-The application follows a simple full-stack architecture.
+## Architecture
 
 ```text
-User
-  |
-  v
-Frontend
-HTML / CSS / JavaScript
-  |
-  | HTTP Requests
-  v
-Django REST Framework APIs
-  |
-  +-------------------+
-  |                   |
-  v                   v
-Authentication     Business Logic
-  |                   |
-  +---------+---------+
+Frontend (HTML/CSS/JavaScript)
             |
             v
-        Database
+Django REST Framework
             |
-     +------+------+
-     |             |
-   SQLite       PostgreSQL
-   (Local)      (Production)
+            v
+     Database
+   SQLite / PostgreSQL
+
+rfq_marketplace/
+├── accounts/
+├── frontend/
+├── market/
+├── manage.py
+└── requirements.txt
+
+git clone https://github.com/maheshkunchala0717-sudo/Request_for_Quotations_project.git
+cd Request_for_Quotations_project/rfq_marketplace/market
+python -m venv marketplace
+marketplace\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+
+Open: http://127.0.0.1:8000/
+
+POST /register/
+POST /login/
+
+GET/POST /rfqs/
+GET/PUT/DELETE /rfqs/<id>/
+
+GET/POST /quatations/
+GET/PUT/DELETE /quatations/<id>/
+
+Assumptions & Limitations
+Buyers create RFQs and Suppliers submit quotations.
+Authentication is required for protected operations.
+Email notifications and payment processing are not included.
+The application is deployed on a free hosting plan.
+Author
+
+Mahesh Kunchala
+
+GitHub:
+https://github.com/maheshkunchala0717-sudo
+
+
+**This is the version I recommend for your submission.** It covers the assignment requirements without making the README unnecessarily long.
+
+Paste it into `README.md`, save it, and then tell me **“saved”**.
