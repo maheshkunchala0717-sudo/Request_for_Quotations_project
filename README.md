@@ -74,12 +74,13 @@ GET/PUT/DELETE /rfqs/<id>/
 GET/POST /quatations/
 GET/PUT/DELETE /quatations/<id>/
 ```
-Assumptions & Limitations
-Buyers create RFQs and Suppliers submit quotations.
-Authentication is required for protected operations.
-Email notifications and payment processing are not included.
-The application is deployed on a free hosting plan.
-Author
+##Assumptions & Limitations
+-Buyers create RFQs and Suppliers submit quotations.
+-Authentication is required for protected operations.
+-Email notifications and payment processing are not included.
+-The application is deployed on a free hosting plan.
+
+##Author
 
 Mahesh Kunchala
 
