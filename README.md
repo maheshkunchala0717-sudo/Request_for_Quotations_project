@@ -50,9 +50,9 @@ rfq_marketplace/
 ├── market/
 ├── manage.py
 └── requirements.txt
-
+```
 Local Setup
-
+```text
 git clone https://github.com/maheshkunchala0717-sudo/Request_for_Quotations_project.git
 cd Request_for_Quotations_project/rfq_marketplace/market
 python -m venv marketplace
@@ -60,11 +60,11 @@ marketplace\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
-
+```
 Open: http://127.0.0.1:8000/
 
 API Endpoints
-
+```text
 POST /register/
 POST /login/
 
@@ -73,7 +73,7 @@ GET/PUT/DELETE /rfqs/<id>/
 
 GET/POST /quatations/
 GET/PUT/DELETE /quatations/<id>/
-
+```
 Assumptions & Limitations
 Buyers create RFQs and Suppliers submit quotations.
 Authentication is required for protected operations.
@@ -85,4 +85,4 @@ Mahesh Kunchala
 
 GitHub:
 https://github.com/maheshkunchala0717-sudo
-```
+
