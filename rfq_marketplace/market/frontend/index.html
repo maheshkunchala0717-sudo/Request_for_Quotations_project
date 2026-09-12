@@ -1,0 +1,123 @@
+  {% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+  
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RFQ Marketplace - Login</title>
+
+   <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <h1>RFQ Marketplace</h1>
+
+        <p class="subtitle">Login to your account</p>
+
+        <form id="loginForm">
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter username"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter password"
+                    required
+                >
+            </div>
+
+            <button type="submit">Login</button>
+
+            <p id="message"></p>
+
+        </form>
+
+        <p class="register-link">
+            Don't have an account?
+            <a href="register">Register</a>
+        </p>
+
+    </div>
+
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+
+            const response = await fetch("http://127.0.0.1:8000/login/", {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+
+            console.log("Login response:", data);
+
+            if (response.ok) {
+
+                
+                localStorage.setItem("token", data.token);
+
+                
+                localStorage.setItem("role", data.role);
+
+                alert("Login successful!");
+
+                
+                window.location.href = "/rfqs-page/";
+
+            } else {
+
+                document.getElementById("message").innerText =
+                    data.error || "Invalid username or password.";
+
+            }
+
+        } catch (error) {
+
+            console.error("Login error:", error);
+
+            document.getElementById("message").innerText =
+                "Unable to connect to Django server.";
+
+        }
+
+    });
+</script>
+
+
+
+</body>
+</html>
+

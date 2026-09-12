@@ -1,0 +1,67 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RFQ Marketplace</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'style.css' %}"
+    >
+
+</head>
+
+<body>
+
+    <nav>
+
+        <h2>
+            RFQ Marketplace
+        </h2>
+
+        <a href="/">
+            Home
+        </a>
+
+    </nav>
+
+
+    <main>
+
+        <div class="form-container">
+
+            <h1>
+                Available RFQs
+            </h1>
+
+
+            <!-- Create RFQ button will be shown only to buyer -->
+
+            <div id="buyer-actions" style="margin-bottom: 20px;">
+            </div>
+
+
+            <div id="rfq-container">
+
+                <p>
+                    Loading RFQs...
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script src="{% static 'script.js' %}"></script>
+
+</body>
+
+</html>

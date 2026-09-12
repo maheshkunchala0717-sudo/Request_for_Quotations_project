@@ -1,0 +1,324 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Create Quotation</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'style.css' %}"
+    >
+
+</head>
+
+<body>
+
+    <nav>
+
+        <h2>
+            RFQ Marketplace
+        </h2>
+
+        <a href="/rfqs-page/">
+            RFQs
+        </a>
+
+    </nav>
+
+
+    <main>
+
+        <div class="form-container">
+
+            <h1>
+                Submit Quotation
+            </h1>
+
+            <p>
+                Submit your quotation for this RFQ
+            </p>
+
+
+            <form id="quotationForm">
+
+                <div class="form-group">
+
+                    <label for="price">
+                        Price
+                    </label>
+
+                    <input
+                        type="number"
+                        id="price"
+                        step="0.01"
+                        min="0"
+                        placeholder="Enter your price"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="delivery_time">
+                        Delivery Time (days)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="delivery_time"
+                        min="1"
+                        placeholder="Enter delivery time"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="notes">
+                        Notes
+                    </label>
+
+                    <textarea
+                        id="notes"
+                        rows="5"
+                        placeholder="Additional information"
+                    ></textarea>
+
+                </div>
+
+
+                <button type="submit">
+                    Submit Quotation
+                </button>
+
+
+                <p id="message"></p>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // =========================
+        // LOGIN
+        // =========================
+
+        const token =
+            localStorage.getItem("token");
+
+
+        const role =
+            localStorage.getItem("role");
+
+
+        if (!token) {
+
+            window.location.href = "/";
+
+        }
+
+
+        // Only suppliers can submit quotations
+
+        if (role !== "supplier") {
+
+            document.getElementById(
+                "message"
+            ).innerText =
+                "Only suppliers can submit quotations.";
+
+            document.getElementById(
+                "quotationForm"
+            ).style.display = "none";
+
+        }
+
+
+        // =========================
+        // GET RFQ ID
+        // =========================
+
+        const urlParams =
+            new URLSearchParams(
+                window.location.search
+            );
+
+
+        const rfqId =
+            urlParams.get("rfq_id") ||
+            urlParams.get("id");
+
+
+        // =========================
+        // CHECK RFQ ID
+        // =========================
+
+        if (!rfqId) {
+
+            document.getElementById(
+                "message"
+            ).innerText =
+                "RFQ ID is missing. Open the quotation page from an RFQ.";
+
+        }
+
+
+        // =========================
+        // SUBMIT QUOTATION
+        // =========================
+
+        document
+            .getElementById("quotationForm")
+            .addEventListener(
+                "submit",
+                async function(event) {
+
+                    event.preventDefault();
+
+
+                    if (!rfqId) {
+
+                        return;
+
+                    }
+
+
+                    const price =
+                        document.getElementById(
+                            "price"
+                        ).value;
+
+
+                    const delivery_time =
+                        document.getElementById(
+                            "delivery_time"
+                        ).value;
+
+
+                    const notes =
+                        document.getElementById(
+                            "notes"
+                        ).value;
+
+
+                    const quotationData = {
+
+                        rfq:
+                            Number(rfqId),
+
+                        price:
+                            price,
+
+                        delivery_time:
+                            delivery_time,
+
+                        notes:
+                            notes
+
+                    };
+
+
+                    console.log(
+                        "Sending quotation:",
+                        quotationData
+                    );
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                "/quatations/",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json",
+
+                                        "Authorization":
+                                            "Token " + token
+                                    },
+
+                                    body:
+                                        JSON.stringify(
+                                            quotationData
+                                        )
+
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        console.log(
+                            "Quotation response:",
+                            data
+                        );
+
+
+                        if (response.ok) {
+
+                            alert(
+                                "Quotation submitted successfully!"
+                            );
+
+
+                            window.location.href =
+                                `/rfq-details/?id=${rfqId}`;
+
+                        }
+
+                        else {
+
+                            document.getElementById(
+                                "message"
+                            ).innerText =
+                                JSON.stringify(data);
+
+                        }
+
+                    }
+
+                    catch (error) {
+
+                        console.error(
+                            "Quotation error:",
+                            error
+                        );
+
+
+                        document.getElementById(
+                            "message"
+                        ).innerText =
+                            "Unable to connect to Django server.";
+
+                    }
+
+                }
+            );
+
+    </script>
+
+</body>
+
+</html>

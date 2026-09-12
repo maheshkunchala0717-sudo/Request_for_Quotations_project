@@ -1,0 +1,397 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit Quotation</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'style.css' %}"
+    >
+
+</head>
+
+<body>
+
+    <nav>
+
+        <h2>
+            RFQ Marketplace
+        </h2>
+
+        <a href="/quotations-page/">
+            Quotations
+        </a>
+
+    </nav>
+
+
+    <main>
+
+        <div class="form-container">
+
+            <h1>
+                Edit Quotation
+            </h1>
+
+            <p>
+                Update your quotation
+            </p>
+
+
+            <form id="editQuotationForm">
+
+                <!-- PRICE -->
+
+                <div class="form-group">
+
+                    <label for="price">
+                        Price
+                    </label>
+
+                    <input
+                        type="number"
+                        id="price"
+                        step="0.01"
+                        min="0"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- DELIVERY TIME -->
+
+                <div class="form-group">
+
+                    <label for="delivery_time">
+                        Delivery Time (days)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="delivery_time"
+                        min="1"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- NOTES -->
+
+                <div class="form-group">
+
+                    <label for="notes">
+                        Notes
+                    </label>
+
+                    <textarea
+                        id="notes"
+                        rows="5"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- BUTTONS -->
+
+                <button type="submit">
+                    Save Changes
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="window.history.back()"
+                >
+                    Cancel
+                </button>
+
+
+                <p id="message"></p>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // =========================
+        // LOGIN
+        // =========================
+
+        const token =
+            localStorage.getItem("token");
+
+
+        if (!token) {
+
+            window.location.href = "/";
+
+        }
+
+
+        // =========================
+        // GET QUOTATION ID
+        // =========================
+
+        const urlParams =
+            new URLSearchParams(
+                window.location.search
+            );
+
+
+        const quotationId =
+            urlParams.get("id");
+
+
+        // =========================
+        // CHECK QUOTATION ID
+        // =========================
+
+        if (!quotationId) {
+
+            document.getElementById(
+                "message"
+            ).innerText =
+                "Quotation ID is missing.";
+
+        }
+
+
+        // =========================
+        // LOAD QUOTATION
+        // =========================
+
+        async function loadQuotation() {
+
+            if (!quotationId) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/quatations/${quotationId}/`,
+                        {
+                            method: "GET",
+
+                            headers: {
+                                "Authorization":
+                                    "Token " + token,
+
+                                "Content-Type":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "Quotation:",
+                    data
+                );
+
+
+                if (!response.ok) {
+
+                    document.getElementById(
+                        "message"
+                    ).innerText =
+                        JSON.stringify(data);
+
+                    return;
+
+                }
+
+
+                // Fill existing values
+
+                document.getElementById(
+                    "price"
+                ).value =
+                    data.price;
+
+
+                document.getElementById(
+                    "delivery_time"
+                ).value =
+                    data.delivery_time;
+
+
+                document.getElementById(
+                    "notes"
+                ).value =
+                    data.notes || "";
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Load quotation error:",
+                    error
+                );
+
+
+                document.getElementById(
+                    "message"
+                ).innerText =
+                    "Unable to connect to Django server.";
+
+            }
+
+        }
+
+
+        // =========================
+        // UPDATE QUOTATION
+        // =========================
+
+        document
+            .getElementById("editQuotationForm")
+            .addEventListener(
+                "submit",
+                async function(event) {
+
+                    event.preventDefault();
+
+
+                    if (!quotationId) {
+
+                        return;
+
+                    }
+
+
+                    const updatedData = {
+
+                        price:
+                            document.getElementById(
+                                "price"
+                            ).value,
+
+                        delivery_time:
+                            document.getElementById(
+                                "delivery_time"
+                            ).value,
+
+                        notes:
+                            document.getElementById(
+                                "notes"
+                            ).value
+
+                    };
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                `/quatations/${quotationId}/`,
+                                {
+                                    method: "PATCH",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json",
+
+                                        "Authorization":
+                                            "Token " + token
+                                    },
+
+                                    body:
+                                        JSON.stringify(
+                                            updatedData
+                                        )
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        console.log(
+                            "Update quotation:",
+                            data
+                        );
+
+
+                        if (response.ok) {
+
+                            alert(
+                                "Quotation updated successfully!"
+                            );
+
+
+                            window.location.href =
+                                "/quotations-page/";
+
+                        }
+
+                        else {
+
+                            document.getElementById(
+                                "message"
+                            ).innerText =
+                                JSON.stringify(data);
+
+                        }
+
+                    }
+
+
+                    catch (error) {
+
+                        console.error(
+                            "Update error:",
+                            error
+                        );
+
+
+                        document.getElementById(
+                            "message"
+                        ).innerText =
+                            "Unable to connect to Django server.";
+
+                    }
+
+                }
+            );
+
+
+        // =========================
+        // START
+        // =========================
+
+        loadQuotation();
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,421 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Quotations - RFQ Marketplace</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'style.css' %}"
+    >
+
+</head>
+
+<body>
+
+    <nav>
+
+        <h2>
+            RFQ Marketplace
+        </h2>
+
+        <a href="/rfqs-page/">
+            RFQs
+        </a>
+
+    </nav>
+
+
+    <main>
+
+        <div class="form-container">
+
+            <h1>
+                Quotations
+            </h1>
+
+            <div id="quotation-container">
+
+                <p>
+                    Loading quotations...
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // =========================
+        // LOGIN
+        // =========================
+
+        const token =
+            localStorage.getItem("token");
+
+        const role =
+            localStorage.getItem("role");
+
+
+        if (!token) {
+
+            window.location.href = "/";
+
+        }
+
+
+        // =========================
+        // LOAD QUOTATIONS
+        // =========================
+
+        async function loadQuotations() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/quatations/",
+                        {
+                            method: "GET",
+
+                            headers: {
+                                "Authorization":
+                                    "Token " + token,
+
+                                "Content-Type":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "Quotation data:",
+                    data
+                );
+
+
+                const container =
+                    document.getElementById(
+                        "quotation-container"
+                    );
+
+
+                container.innerHTML =
+                    "";
+
+
+                // Authentication failed
+
+                if (response.status === 401) {
+
+                    alert(
+                        "Your session has expired. Please login again."
+                    );
+
+
+                    localStorage.removeItem(
+                        "token"
+                    );
+
+                    localStorage.removeItem(
+                        "role"
+                    );
+
+
+                    window.location.href =
+                        "/";
+
+                    return;
+
+                }
+
+
+                // Other error
+
+                if (!response.ok) {
+
+                    container.innerHTML =
+                        `<p>${JSON.stringify(data)}</p>`;
+
+                    return;
+
+                }
+
+
+                // No quotations
+
+                if (
+                    !Array.isArray(data) ||
+                    data.length === 0
+                ) {
+
+                    container.innerHTML =
+                        "<p>No quotations available.</p>";
+
+                    return;
+
+                }
+
+
+                // =========================
+                // DISPLAY QUOTATIONS
+                // =========================
+
+                data.forEach(
+                    function(quotation) {
+
+                        const quotationDiv =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        quotationDiv.classList.add(
+                            "rfq-card"
+                        );
+
+
+                        let selectedStatus =
+                            "";
+
+
+                        if (
+                            quotation.is_selected
+                        ) {
+
+                            selectedStatus = `
+                                <p>
+                                    <strong>
+                                        Selected ✅
+                                    </strong>
+                                </p>
+                            `;
+
+                        }
+
+
+                        // Edit/Delete should be
+                        // available only according
+                        // to backend permissions.
+                        //
+                        // For now keep your existing
+                        // edit/delete interface.
+
+                        quotationDiv.innerHTML = `
+
+                            <h3>
+                                Quotation #${quotation.id}
+                            </h3>
+
+
+                            <p>
+                                <strong>
+                                    RFQ ID:
+                                </strong>
+                                ${quotation.rfq}
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Price:
+                                </strong>
+                                ${quotation.price}
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Delivery Time:
+                                </strong>
+                                ${quotation.delivery_time}
+                                days
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Notes:
+                                </strong>
+                                ${quotation.notes || "No notes"}
+                            </p>
+
+
+                            <p>
+                                <strong>
+                                    Supplier ID:
+                                </strong>
+                                ${quotation.supplier || "N/A"}
+                            </p>
+
+
+                            ${selectedStatus}
+
+
+                            ${
+                                role === "supplier"
+                                ? `
+                                    <a
+                                        href="/edit-quotation/?id=${quotation.id}"
+                                    >
+                                        Edit Quotation
+                                    </a>
+
+                                    <br>
+                                    <br>
+
+                                    <button
+                                        onclick="deleteQuotation(${quotation.id})"
+                                    >
+                                        Delete Quotation
+                                    </button>
+                                  `
+                                : ""
+                            }
+
+                        `;
+
+
+                        container.appendChild(
+                            quotationDiv
+                        );
+
+                    }
+                );
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Quotation loading error:",
+                    error
+                );
+
+
+                document.getElementById(
+                    "quotation-container"
+                ).innerHTML =
+                    "<p>Unable to connect to Django server.</p>";
+
+            }
+
+        }
+
+
+        // =========================
+        // DELETE QUOTATION
+        // =========================
+
+        async function deleteQuotation(
+            quotationId
+        ) {
+
+            const confirmDelete =
+                confirm(
+                    "Are you sure you want to delete this quotation?"
+                );
+
+
+            if (!confirmDelete) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/quatations/${quotationId}/`,
+                        {
+                            method: "DELETE",
+
+                            headers: {
+                                "Authorization":
+                                    "Token " + token
+                            }
+                        }
+                    );
+
+
+                if (response.ok) {
+
+                    alert(
+                        "Quotation deleted successfully!"
+                    );
+
+
+                    loadQuotations();
+
+                }
+
+                else {
+
+                    const data =
+                        await response.json();
+
+
+                    console.log(
+                        "Delete quotation:",
+                        data
+                    );
+
+
+                    alert(
+                        JSON.stringify(data)
+                    );
+
+                }
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Delete error:",
+                    error
+                );
+
+
+                alert(
+                    "Unable to connect to Django server."
+                );
+
+            }
+
+        }
+
+
+        // =========================
+        // START
+        // =========================
+
+        loadQuotations();
+
+    </script>
+
+</body>
+
+</html>

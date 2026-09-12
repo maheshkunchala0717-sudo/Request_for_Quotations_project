@@ -1,0 +1,284 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create RFQ - RFQ Marketplace</title>
+
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+</head>
+
+<body>
+
+    <nav>
+
+        <h2>RFQ Marketplace</h2>
+
+        <a href="/rfqs-page/">
+            RFQs
+        </a>
+
+    </nav>
+
+
+    <main>
+
+        <div class="form-container">
+
+            <h1>Create RFQ</h1>
+
+            <p>Create a new Request for Quotation</p>
+
+
+            <form id="rfqForm">
+
+                <div class="form-group">
+
+                    <label for="product_service">
+                        Product / Service
+                    </label>
+
+                    <input
+                        type="text"
+                        id="product_service"
+                        placeholder="Enter product or service"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="description">
+                        Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        placeholder="Describe your requirement"
+                        rows="5"
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="quantity">
+                        Quantity
+                    </label>
+
+                    <input
+                        type="number"
+                        id="quantity"
+                        min="1"
+                        placeholder="Enter quantity"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="deliver_location">
+                        Delivery Location
+                    </label>
+
+                    <input
+                        type="text"
+                        id="deliver_location"
+                        placeholder="Enter delivery location"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="dead_line">
+                        Deadline
+                    </label>
+
+                    <input
+                        type="date"
+                        id="dead_line"
+                        required
+                    >
+
+                </div>
+
+
+                <button type="submit">
+                    Create RFQ
+                </button>
+
+
+                <p id="message"></p>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // =========================
+        // LOGIN
+        // =========================
+
+        const token =
+            localStorage.getItem("token");
+
+
+        if (!token) {
+
+            window.location.href = "/";
+
+        }
+
+
+        // =========================
+        // CREATE RFQ
+        // =========================
+
+        document
+            .getElementById("rfqForm")
+            .addEventListener(
+                "submit",
+                async function(event) {
+
+                    event.preventDefault();
+
+
+                    const product_service =
+                        document.getElementById(
+                            "product_service"
+                        ).value;
+
+                    const description =
+                        document.getElementById(
+                            "description"
+                        ).value;
+
+                    const quantity =
+                        document.getElementById(
+                            "quantity"
+                        ).value;
+
+                    const deliver_location =
+                        document.getElementById(
+                            "deliver_location"
+                        ).value;
+
+                    const dead_line =
+                        document.getElementById(
+                            "dead_line"
+                        ).value;
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                "/rfqs/",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json",
+
+                                        "Authorization":
+                                            "Token " + token
+                                    },
+
+                                    body: JSON.stringify({
+
+                                        product_service:
+                                            product_service,
+
+                                        description:
+                                            description,
+
+                                        quantity:
+                                            quantity,
+
+                                        deliver_location:
+                                            deliver_location,
+
+                                        dead_line:
+                                            dead_line
+
+                                    })
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        console.log(
+                            "Create RFQ response:",
+                            data
+                        );
+
+
+                        if (response.ok) {
+
+                            alert(
+                                "RFQ created successfully!"
+                            );
+
+
+                            window.location.href =
+                                "/rfqs-page/";
+
+                        }
+
+                        else {
+
+                            document.getElementById(
+                                "message"
+                            ).innerText =
+                                JSON.stringify(data);
+
+                        }
+
+                    }
+
+                    catch (error) {
+
+                        console.error(
+                            "Create RFQ error:",
+                            error
+                        );
+
+
+                        document.getElementById(
+                            "message"
+                        ).innerText =
+                            "Unable to connect to Django server.";
+
+                    }
+
+                }
+            );
+
+    </script>
+
+</body>
+
+</html>

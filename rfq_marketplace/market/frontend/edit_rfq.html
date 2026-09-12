@@ -1,0 +1,423 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Edit RFQ</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'style.css' %}"
+    >
+
+</head>
+
+<body>
+
+    <nav>
+
+        <h2>
+            RFQ Marketplace
+        </h2>
+
+        <a href="/rfqs-page/">
+            RFQs
+        </a>
+
+    </nav>
+
+
+    <main>
+
+        <div class="form-container">
+
+            <h1>
+                Edit RFQ
+            </h1>
+
+            <p>
+                Update your Request for Quotation
+            </p>
+
+
+            <form id="editRfqForm">
+
+                <!-- Product / Service -->
+
+                <div class="form-group">
+
+                    <label for="product_service">
+                        Product / Service
+                    </label>
+
+                    <input
+                        type="text"
+                        id="product_service"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Description -->
+
+                <div class="form-group">
+
+                    <label for="description">
+                        Description
+                    </label>
+
+                    <textarea
+                        id="description"
+                        rows="5"
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Quantity -->
+
+                <div class="form-group">
+
+                    <label for="quantity">
+                        Quantity
+                    </label>
+
+                    <input
+                        type="number"
+                        id="quantity"
+                        min="1"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Delivery Location -->
+
+                <div class="form-group">
+
+                    <label for="deliver_location">
+                        Delivery Location
+                    </label>
+
+                    <input
+                        type="text"
+                        id="deliver_location"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Deadline -->
+
+                <div class="form-group">
+
+                    <label for="dead_line">
+                        Deadline
+                    </label>
+
+                    <input
+                        type="date"
+                        id="dead_line"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Buttons -->
+
+                <button type="submit">
+                    Save Changes
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="window.history.back()"
+                >
+                    Cancel
+                </button>
+
+
+                <p id="message"></p>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // =========================
+        // LOGIN
+        // =========================
+
+        const token =
+            localStorage.getItem("token");
+
+
+        if (!token) {
+
+            window.location.href = "/";
+
+        }
+
+
+        // =========================
+        // GET RFQ ID
+        // =========================
+
+        const urlParams =
+            new URLSearchParams(
+                window.location.search
+            );
+
+
+        const rfqId =
+            urlParams.get("id");
+
+
+        // =========================
+        // LOAD RFQ
+        // =========================
+
+        async function loadRFQ() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/rfqs/${rfqId}/`,
+                        {
+                            method: "GET",
+
+                            headers: {
+                                "Authorization":
+                                    "Token " + token,
+
+                                "Content-Type":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "RFQ:",
+                    data
+                );
+
+
+                if (!response.ok) {
+
+                    document.getElementById(
+                        "message"
+                    ).innerText =
+                        JSON.stringify(data);
+
+                    return;
+
+                }
+
+
+                // Fill form
+
+                document.getElementById(
+                    "product_service"
+                ).value =
+                    data.product_service;
+
+
+                document.getElementById(
+                    "description"
+                ).value =
+                    data.description;
+
+
+                document.getElementById(
+                    "quantity"
+                ).value =
+                    data.quantity;
+
+
+                document.getElementById(
+                    "deliver_location"
+                ).value =
+                    data.deliver_location;
+
+
+                document.getElementById(
+                    "dead_line"
+                ).value =
+                    data.dead_line;
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Load error:",
+                    error
+                );
+
+
+                document.getElementById(
+                    "message"
+                ).innerText =
+                    "Unable to connect to Django server.";
+
+            }
+
+        }
+
+
+        // =========================
+        // UPDATE RFQ
+        // =========================
+
+        document
+            .getElementById("editRfqForm")
+            .addEventListener(
+                "submit",
+                async function(event) {
+
+                    event.preventDefault();
+
+
+                    const updatedData = {
+
+                        product_service:
+                            document.getElementById(
+                                "product_service"
+                            ).value,
+
+                        description:
+                            document.getElementById(
+                                "description"
+                            ).value,
+
+                        quantity:
+                            document.getElementById(
+                                "quantity"
+                            ).value,
+
+                        deliver_location:
+                            document.getElementById(
+                                "deliver_location"
+                            ).value,
+
+                        dead_line:
+                            document.getElementById(
+                                "dead_line"
+                            ).value
+
+                    };
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                `/rfqs/${rfqId}/`,
+                                {
+                                    method: "PUT",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json",
+
+                                        "Authorization":
+                                            "Token " + token
+                                    },
+
+                                    body:
+                                        JSON.stringify(
+                                            updatedData
+                                        )
+
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        console.log(
+                            "Update response:",
+                            data
+                        );
+
+
+                        if (response.ok) {
+
+                            alert(
+                                "RFQ updated successfully!"
+                            );
+
+
+                            window.location.href =
+                                `/rfq-details/?id=${rfqId}`;
+
+                        }
+
+                        else {
+
+                            document.getElementById(
+                                "message"
+                            ).innerText =
+                                JSON.stringify(data);
+
+                        }
+
+                    }
+
+                    catch (error) {
+
+                        console.error(
+                            "Update error:",
+                            error
+                        );
+
+
+                        document.getElementById(
+                            "message"
+                        ).innerText =
+                            "Unable to connect to Django server.";
+
+                    }
+
+                }
+            );
+
+
+        // =========================
+        // START
+        // =========================
+
+        loadRFQ();
+
+    </script>
+
+</body>
+
+</html>

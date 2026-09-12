@@ -1,0 +1,236 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>RFQ Marketplace - Register</title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'style.css' %}"
+    >
+
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <h1>
+            RFQ Marketplace
+        </h1>
+
+        <p class="subtitle">
+            Create your account
+        </p>
+
+
+        <form id="registerForm">
+
+            <div class="form-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter username"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter password"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="role">
+                    Account Type
+                </label>
+
+                <select id="role" required>
+
+                    <option value="">
+                        Select account type
+                    </option>
+
+                    <option value="buyer">
+                        Buyer
+                    </option>
+
+                    <option value="supplier">
+                        Supplier
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <button type="submit">
+                Register
+            </button>
+
+
+            <p id="message"></p>
+
+        </form>
+
+
+        <p class="register-link">
+
+            Already have an account?
+
+            <a href="/">
+                Login
+            </a>
+
+        </p>
+
+    </div>
+
+
+    <script>
+
+        // =========================
+        // REGISTER
+        // =========================
+
+        document
+            .getElementById("registerForm")
+            .addEventListener(
+                "submit",
+                async function(event) {
+
+                    event.preventDefault();
+
+
+                    const username =
+                        document.getElementById(
+                            "username"
+                        ).value;
+
+
+                    const password =
+                        document.getElementById(
+                            "password"
+                        ).value;
+
+
+                    const role =
+                        document.getElementById(
+                            "role"
+                        ).value;
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                "/register/",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify({
+                                            username:
+                                                username,
+
+                                            password:
+                                                password,
+
+                                            role:
+                                                role
+                                        })
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        console.log(
+                            "Register response:",
+                            data
+                        );
+
+
+                        if (response.ok) {
+
+                            alert(
+                                "Registration successful!"
+                            );
+
+
+                            // Go back to login
+                            window.location.href =
+                                "/";
+
+                        }
+
+                        else {
+
+                            document.getElementById(
+                                "message"
+                            ).innerText =
+                                JSON.stringify(data);
+
+                        }
+
+                    }
+
+                    catch (error) {
+
+                        console.error(
+                            "Register error:",
+                            error
+                        );
+
+
+                        document.getElementById(
+                            "message"
+                        ).innerText =
+                            "Unable to connect to Django server.";
+
+                    }
+
+                }
+            );
+
+    </script>
+
+</body>
+
+</html>

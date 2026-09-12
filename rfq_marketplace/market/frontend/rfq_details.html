@@ -1,0 +1,723 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>RFQ Details</title>
+
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+</head>
+
+<body>
+
+    <nav>
+
+        <h2>RFQ Marketplace</h2>
+
+        <a href="/rfqs-page/">
+            Back to RFQs
+        </a>
+
+    </nav>
+
+
+    <main>
+
+        <!-- =========================
+             RFQ DETAILS
+        ========================== -->
+
+        <div class="form-container">
+
+            <h1>RFQ Details</h1>
+
+            <div id="rfq-details">
+
+                <p>Loading RFQ...</p>
+
+            </div>
+
+
+            <!-- ACTION BUTTONS -->
+
+            <div id="actions" style="margin-top: 20px;">
+
+                <button id="editButton">
+                    Edit RFQ
+                </button>
+
+                <button id="deleteButton">
+                    Delete RFQ
+                </button>
+
+                <button
+                    id="quotationButton"
+                    style="display: none;"
+                >
+                    Submit Quotation
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             QUOTATIONS
+        ========================== -->
+
+        <div
+            id="quotation-section"
+            style="margin-top: 30px;"
+        >
+
+            <h2>Quotations</h2>
+
+            <div id="quotation-container">
+
+                <p>Loading quotations...</p>
+
+            </div>
+
+        </div>
+
+
+    </main>
+
+
+    <script>
+
+        // =========================
+        // LOGIN INFORMATION
+        // =========================
+
+        const token =
+            localStorage.getItem("token");
+
+        const role =
+            localStorage.getItem("role");
+
+
+        // =========================
+        // CHECK LOGIN
+        // =========================
+
+        if (!token) {
+
+            window.location.href = "/";
+
+        }
+
+
+        // =========================
+        // GET RFQ ID
+        // =========================
+
+        const urlParams =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const rfqId =
+            urlParams.get("id");
+
+
+        // =========================
+        // GET BUTTONS
+        // =========================
+
+        const editButton =
+            document.getElementById("editButton");
+
+        const deleteButton =
+            document.getElementById("deleteButton");
+
+        const quotationButton =
+            document.getElementById(
+                "quotationButton"
+            );
+
+
+        // =========================
+        // ROLE BASED BUTTONS
+        // =========================
+
+        if (role === "supplier") {
+
+            // Supplier can submit quotation
+            quotationButton.style.display =
+                "inline-block";
+
+
+            quotationButton.addEventListener(
+                "click",
+                function() {
+
+                    window.location.href =
+                        `/create-quotation/?rfq_id=${rfqId}`;
+
+                }
+            );
+
+
+            // Supplier cannot edit/delete RFQ
+            editButton.style.display =
+                "none";
+
+            deleteButton.style.display =
+                "none";
+
+        }
+
+
+        if (role === "buyer") {
+
+            // Buyer can edit/delete own RFQ
+            editButton.style.display =
+                "inline-block";
+
+            deleteButton.style.display =
+                "inline-block";
+
+            // Buyer does not submit quotation
+            quotationButton.style.display =
+                "none";
+
+        }
+
+
+        // =========================
+        // LOAD RFQ
+        // =========================
+
+        async function loadRFQ() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/rfqs/${rfqId}/`,
+                        {
+                            method: "GET",
+
+                            headers: {
+                                "Authorization":
+                                    "Token " + token,
+
+                                "Content-Type":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "RFQ Detail:",
+                    data
+                );
+
+
+                if (!response.ok) {
+
+                    document.getElementById(
+                        "rfq-details"
+                    ).innerHTML =
+                        "<p>Unable to load RFQ.</p>";
+
+                    return;
+
+                }
+
+
+                document.getElementById(
+                    "rfq-details"
+                ).innerHTML = `
+
+                    <h2>
+                        ${data.product_service}
+                    </h2>
+
+                    <p>
+                        <strong>Description:</strong>
+                        ${data.description}
+                    </p>
+
+                    <p>
+                        <strong>Quantity:</strong>
+                        ${data.quantity}
+                    </p>
+
+                    <p>
+                        <strong>Delivery Location:</strong>
+                        ${data.deliver_location}
+                    </p>
+
+                    <p>
+                        <strong>Deadline:</strong>
+                        ${data.dead_line}
+                    </p>
+
+                    <p>
+                        <strong>Buyer ID:</strong>
+                        ${data.buyer}
+                    </p>
+
+                `;
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "RFQ Error:",
+                    error
+                );
+
+                document.getElementById(
+                    "rfq-details"
+                ).innerHTML =
+                    "<p>Unable to connect to Django server.</p>";
+
+            }
+
+        }
+
+
+        // =========================
+        // EDIT RFQ
+        // =========================
+
+        editButton.addEventListener(
+            "click",
+            function() {
+
+                window.location.href =
+                    `/edit-rfq/?id=${rfqId}`;
+
+            }
+        );
+
+
+        // =========================
+        // DELETE RFQ
+        // =========================
+
+        deleteButton.addEventListener(
+            "click",
+            async function() {
+
+                const confirmDelete =
+                    confirm(
+                        "Are you sure you want to delete this RFQ?"
+                    );
+
+
+                if (!confirmDelete) {
+
+                    return;
+
+                }
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            `/rfqs/${rfqId}/`,
+                            {
+                                method: "DELETE",
+
+                                headers: {
+                                    "Authorization":
+                                        "Token " + token
+                                }
+                            }
+                        );
+
+
+                    if (response.ok) {
+
+                        alert(
+                            "RFQ deleted successfully!"
+                        );
+
+
+                        window.location.href =
+                            "/rfqs-page/";
+
+                    }
+
+                    else {
+
+                        const data =
+                            await response.json();
+
+
+                        console.log(
+                            "Delete response:",
+                            data
+                        );
+
+
+                        alert(
+                            JSON.stringify(data)
+                        );
+
+                    }
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Delete error:",
+                        error
+                    );
+
+
+                    alert(
+                        "Unable to connect to Django server."
+                    );
+
+                }
+
+            }
+        );
+
+
+        // =========================
+        // LOAD QUOTATIONS
+        // =========================
+
+        async function loadQuotations() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/quatations/",
+                        {
+                            method: "GET",
+
+                            headers: {
+                                "Authorization":
+                                    "Token " + token,
+
+                                "Content-Type":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "Quotations:",
+                    data
+                );
+
+
+                const container =
+                    document.getElementById(
+                        "quotation-container"
+                    );
+
+
+                if (!response.ok) {
+
+                    container.innerHTML =
+                        "<p>Unable to load quotations.</p>";
+
+                    return;
+
+                }
+
+
+                // Only quotations for current RFQ
+
+                const rfqQuotations =
+                    data.filter(
+                        function(quotation) {
+
+                            return String(
+                                quotation.rfq
+                            ) === String(rfqId);
+
+                        }
+                    );
+
+
+                container.innerHTML =
+                    "";
+
+
+                // No quotation
+
+                if (
+                    rfqQuotations.length === 0
+                ) {
+
+                    container.innerHTML =
+                        "<p>No quotations submitted for this RFQ.</p>";
+
+                    return;
+
+                }
+
+
+                // =========================
+                // DISPLAY QUOTATIONS
+                // =========================
+
+                rfqQuotations.forEach(
+                    function(quotation) {
+
+                        const quotationDiv =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        quotationDiv.classList.add(
+                            "rfq-card"
+                        );
+
+
+                        // Selected status
+
+                        let selectedStatus =
+                            "";
+
+
+                        if (
+                            quotation.is_selected
+                        ) {
+
+                            selectedStatus = `
+
+                                <p>
+                                    <strong>
+                                        Selected ✅
+                                    </strong>
+                                </p>
+
+                            `;
+
+                        }
+
+
+                        // Select button
+
+                        let selectButton =
+                            "";
+
+
+                        if (
+                            role === "buyer" &&
+                            !quotation.is_selected
+                        ) {
+
+                            selectButton = `
+
+                                <button
+                                    onclick="selectQuotation(${quotation.id})"
+                                >
+                                    Select Quotation
+                                </button>
+
+                            `;
+
+                        }
+
+
+                        quotationDiv.innerHTML = `
+
+                            <h3>
+                                Quotation #${quotation.id}
+                            </h3>
+
+                            <p>
+                                <strong>Price:</strong>
+                                ${quotation.price}
+                            </p>
+
+                            <p>
+                                <strong>Delivery Time:</strong>
+                                ${quotation.delivery_time}
+                                days
+                            </p>
+
+                            <p>
+                                <strong>Notes:</strong>
+                                ${quotation.notes || "No notes"}
+                            </p>
+
+                            <p>
+                                <strong>Supplier ID:</strong>
+                                ${quotation.supplier || "N/A"}
+                            </p>
+
+                            ${selectedStatus}
+
+                            ${selectButton}
+
+                        `;
+
+
+                        container.appendChild(
+                            quotationDiv
+                        );
+
+                    }
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Quotation error:",
+                    error
+                );
+
+
+                document.getElementById(
+                    "quotation-container"
+                ).innerHTML =
+                    "<p>Unable to connect to Django server.</p>";
+
+            }
+
+        }
+
+
+        // =========================
+        // SELECT QUOTATION
+        // =========================
+
+        async function selectQuotation(
+            quotationId
+        ) {
+
+            console.log(
+                "SELECT CLICKED:",
+                quotationId
+            );
+
+
+            const confirmSelection =
+                confirm(
+                    "Are you sure you want to select this quotation?"
+                );
+
+
+            if (!confirmSelection) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/quatations/${quotationId}/select/`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Authorization":
+                                    "Token " + token,
+
+                                "Content-Type":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                console.log(
+                    "Selection status:",
+                    response.status
+                );
+
+
+                const responseText =
+                    await response.text();
+
+
+                console.log(
+                    "Selection response:",
+                    responseText
+                );
+
+
+                if (response.ok) {
+
+                    alert(
+                        "Quotation selected successfully!"
+                    );
+
+
+                    await loadQuotations();
+
+                }
+
+                else {
+
+                    alert(
+                        "Selection failed.\n\n" +
+                        "Status: " +
+                        response.status +
+                        "\n\n" +
+                        responseText
+                    );
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Selection error:",
+                    error
+                );
+
+
+                alert(
+                    "Unable to connect to Django server."
+                );
+
+            }
+
+        }
+
+
+        // =========================
+        // START PAGE
+        // =========================
+
+        loadRFQ();
+
+        loadQuotations();
+
+    </script>
+
+</body>
+
+</html>
